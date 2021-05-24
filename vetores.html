@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang='pt-br'>
+<head> 
+	<title>Vetores</title>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<meta charset='utf-8'>
+	<style>
+		label {color: white}
+		.divisor {border-bottom:2px dashed white}
+	</style>
+	<script>
+		/*retorna um escalar, produto interno entre a e b*/
+		function produtoInterno(a, b) {
+			return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+		}
+
+		/*retorna um vetor, produto vetorial entre a e b*/
+		function produtoVetorial(a, b) {
+			var c = new Array(3);
+			c[0] = a[1] * b[2] - b[1] * a[2];
+			c[1] = a[2] * b[0] - b[2] * a[0];
+			c[2] = a[0] * b[1] - b[0] * a[1];
+			return c;
+		}
+
+		/*retorna o módulo do vetor*/
+		function modulo(a) {
+			return Math.sqrt(a[0]**2 + a[1]**2 + a[2]**2);
+		}
+
+		/*retorna o ângulo entre dois vetores em radianos*/
+		function angulo(a, b) {
+			var p = produtoInterno(a, b);
+			var ma = modulo(a);
+			var mb = modulo(b);
+			return Math.acos(p / (ma * mb));
+		}
+
+		/*retorna a soma dos vetores*/
+		function soma(a, b) {
+			var r = new Array(3);
+			r[0] = a[0] + b[0];
+			r[1] = a[1] + b[1];
+			r[2] = a[2] + b[2];
+			return r;
+		}
+		
+		/*retorna a diferença entro os vetores*/
+		function diferenca(a, b) {
+			var r = new Array(3);
+			r[0] = a[0] - b[0];
+			r[1] = a[1] - b[1];
+			r[2] = a[2] - b[2];
+			return r;
+		}
+	</script>
+</head>
+<body bgcolor='black' text='orange'>
+<div style='border: 2px solid white'>
+	Insira as coordenadas dos vetores A e B, para obter as iformações sobre eles.
+	<div>
+		Vetor A: Ax = 
+		<input type='text' id='Ax' size=1/>
+		, Ay = 
+		<input type='text' id='Ay' size=1/>
+		, Az = 
+		<input type='text' id='Az' size=1/>	
+	</div>	
+	<div class='divisor'>
+		Vetor B: Bx = 
+		<input type='text' id='Bx' size=1/>
+		, By = 
+		<input type='text' id='By' size=1/>
+		, Bz = 
+		<input type='text' id='Bz' size=1/>
+		<br>
+		<button id='botvet'>Calcular</button>
+	</div> 
+		
+	<div> 
+		|A| = 		
+		<label id='Amod'></label>
+	</div>
+	<div class='divisor'> 
+		|B| = 		
+		<label id='Bmod'></label>
+	</div>
+	<div> 
+		A + B = 		
+		<label id='ABsom'></label>
+	</div>
+	<div> 
+		A - B = 		
+		<label id='ABdif'></label>
+	</div>
+	<div> 
+		A * B = 		
+		<label id='ABint'></label>
+	</div>
+	<div class='divisor'> 
+		A x B = 		
+		<label id='ABvet'></label>
+	</div>
+	<div> 
+		|A + B| = 		
+		<label id='ABsommod'></label>
+	</div>
+	<div> 
+		|A - B| = 		
+		<label id='ABdifmod'></label>
+	</div>
+	<div class='divisor'> 
+		|A x B| = 		
+		<label id='ABvetmod'></label>
+	</div>
+	<div>
+		ângulo(A, B) = 
+		<label id='ABrad'></label>
+	</div>
+	<div>
+		ângulo(A, B) = 
+		<font color='white'><label id='ABdeg'></label></font>
+	</div>
+</div>
+<a href='regressao.html'>regressão linear</a>
+<br>
+<a href='vetores.html'>vetores</a>
+<script>
+	var botvet = document.getElementById('botvet');	
+
+	botvet.onclick = function() { 
+		Ax = new Number(document.getElementById('Ax').value);
+		Ay = new Number(document.getElementById('Ay').value);
+		Az = new Number(document.getElementById('Az').value);
+		Bx = new Number(document.getElementById('Bx').value);
+		By = new Number(document.getElementById('By').value);
+		Bz = new Number(document.getElementById('Bz').value);
+		
+		var A = [Ax, Ay, Az];
+		var B = [Bx, By, Bz];
+
+		var ABsom = soma(A, B);
+		var ABdif = diferenca(A, B);
+		var ABvet = produtoVetorial(A, B);
+
+		document.getElementById('Amod').innerText = modulo(A);
+		document.getElementById('Bmod').innerText = modulo(B);		
+		document.getElementById('ABsom').innerText = '(' + ABsom + ')';
+		document.getElementById('ABdif').innerText = '(' + ABdif + ')';
+		document.getElementById('ABint').innerText = produtoInterno(A, B);
+		
+		document.getElementById('ABvet').innerText = '(' + ABvet + ')';
+		document.getElementById('ABsommod').innerText = modulo(ABsom);
+		document.getElementById('ABdifmod').innerText = modulo(ABdif);
+		document.getElementById('ABvetmod').innerText = modulo(ABvet);
+		document.getElementById('ABrad').innerText = angulo(A, B) + ' rad';
+		document.getElementById('ABdeg').innerText = 180 * angulo(A, B) / Math.PI + '°';
+	}
+</script>
+</body>
+</html>

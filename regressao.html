@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+	<title>M&eacute;todo dos m&iacute;nimos quadrados</title>
+	<meta name='viewport' content='width=device-width initial-scale=1'></meta>
+	<meta charset='utf-8'>
+	<style>
+		#mae {
+			border: 2px solid white;
+		}
+		.divisor {
+			border-bottom: 2px dashed white;
+		}
+		label {
+			color: white;
+		}
+		#grafico {
+			overflow-x: scroll;
+		}
+	</style>
+	<script>
+		function retaMinimoQuadrado(x, y) {
+			var n = x.length;
+			var sx = 0;
+			var sy = 0;
+			var sx2 = 0;
+			var sxy = 0;
+			var sy2 = 0;
+
+			for (var i = 0; i < n; i++) {
+				sx += x[i];
+				sy += y[i];
+				sx2 += x[i] * x[i];
+				sy2 += y[i] * y[i];
+				sxy += x[i] * y[i];
+			}
+			
+			var normX = n * sx2 - sx * sx;
+			var normY = n * sy2 - sy * sy;
+			var normXY = n * sxy - sx * sy
+						
+			var a1 = normXY / normX;
+			var a0 = (sy - a1 * sx) / n;
+			var r = normXY / Math.sqrt(normX * normY);
+
+			return [a0, a1, r];
+		}
+		
+		function plotarPontos(context, arrayX, arrayY, raio, bordaGrid, cor) {
+			if (raio == null) raio = 2;
+			if (bordaGrid == null) bordaGrid = 10;
+			if (cor == null) cor = 'black';
+			
+			var n = arrayX.length;
+			var altura = context.canvas.height - 2 * bordaGrid;
+			var largura = context.canvas.width - 2 * bordaGrid;
+			var largura_por_unidade = largura / maximo(arrayX);
+			var altura_por_unidade = altura / maximo(arrayY);
+			
+			context.save();
+			
+			for (var i = 0; i < n; i++) {
+				context.beginPath();
+				
+				context.arc(
+					bordaGrid + arrayX[i] * largura_por_unidade, 
+					bordaGrid + altura - arrayY[i] * altura_por_unidade,
+					raio,
+					0,
+					2 * Math.PI
+				);
+				context.fillStyle = cor;
+				context.fill();
+			}
+			
+			context.restore();
+		}
+
+		function maximo(array) {
+			var max = array[0];
+			
+			for (var i = 1; i < array.length; i++) {
+				if (array[i] > max) max = array[i];
+			}
+			
+			return max;
+		}
+		
+		function desenharGrid(context, divisaoX, divisaoY, borda, cor) {
+			if (divisaoX == null) divisaoX = 10;
+			if (divisaoY == null) divisaoY = 10;
+			if (borda == null) borda = 10;
+			if (cor == null) cor = 'black'
+			
+			var largura = context.canvas.width - 2 * borda;
+			var altura = context.canvas.height - 2 * borda;			
+			
+			context.save();			
+			context.fillStyle = 'white';
+			context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+			
+			context.lineWidth = 1;
+			context.strokeStyle = cor;
+			
+			// linhas verticais	
+			
+			for (var i = borda; i <= borda + largura; i += (largura / divisaoX)) {
+					context.beginPath()
+					context.moveTo(i, borda);
+					context.lineTo(i, borda + altura);					
+					context.stroke();
+			}
+			
+			
+			// linhas horizontais			
+			for (var i = borda; i <= borda + altura; i += (altura / divisaoY)) {
+					context.beginPath()
+					context.moveTo(borda, i);
+					context.lineTo(borda + largura, i);
+					context.stroke();
+			}
+			
+			context.restore();
+		}
+		
+		function plotarReta(context, coefLinear, coefAngular, arrayX, espessura, bordaGrid, cor) {
+			if (espessura == null) espessura = 1;
+			if (cor == null) cor = 'black';
+			if (bordaGrid == null) bordaGrid = 10;
+			
+			var altura = context.canvas.height - 2 * bordaGrid;
+			var largura = context.canvas.width - 2 * bordaGrid;			
+			
+			x1 = minimo(arrayX);
+			y1 = coefLinear + coefAngular  * x1;
+			
+			x2 = maximo(arrayX);
+			y2 = coefLinear + coefAngular  * x2;
+			
+			var largura_por_unidade = largura / x2;
+			var altura_por_unidade = altura / y2;
+			
+			context.save();			
+			
+			context.beginPath();
+			context.moveTo(
+				bordaGrid + x1 * largura_por_unidade,
+				bordaGrid + altura - y1 * altura_por_unidade
+			);
+			context.lineTo(
+				bordaGrid + x2 * largura_por_unidade,
+				bordaGrid + altura - y2 * altura_por_unidade
+			);
+			context.lineWidth = espessura;
+			context.strokeStyle = cor;
+			context.stroke();
+			
+			context.restore();
+		}
+		
+		function minimo(array) {
+			var min = array[0];
+			
+			for (var i = 1; i < array.length; i++) {
+				if (array[i] < min) min = array[i];
+			}
+			
+			return min;
+		}
+	</script>
+</head>
+<body bgcolor='black' text='orange'>
+<div id='mae'>
+	Insira os valores de X e de Y separados por espa&ccedil;o em branco (Exemplo: "1 2 3 4 5 6 7 8").
+	<div class='divisor'>
+		Valores de X = <input type='text' id='X'/>
+		<br>
+		Valores de Y = <input type='text' id='Y'/>
+		<br>
+		<button id='calc'>Calcular</button>
+	</div>
+	<div class='divisor'>
+		Y = <label id='func'></label>
+	</div>
+	<div>
+		Coeficiente de correla&ccedil;&atilde;o: R = <label id='corre'></label>
+	</div>	
+</div>
+<div id='grafico'>
+	<canvas id='canvas' width=500 height=500></canvas>
+</div>
+<a href='regressao.html'>regress&atilde;o linear</a>
+<br>
+<a href='vetores.html'>vetores</a>
+<script>
+	// x = 1 3 4 6 8 9 11 14
+	// y = 1 2 4 4 5 7 8 9
+	// a1 = 0,636
+	// b0 = 0,545
+	// r = 0,977
+	var canvas = document.getElementById('canvas');
+	var context = canvas.getContext('2d');
+	var botao = document.getElementById('calc');
+	desenharGrid(context, 20, 20, 20, 'blue');
+
+	botao.onclick = function() {
+		var X = document.getElementById('X').value.split(' ');
+		var Y = document.getElementById('Y').value.split(' ');		
+		
+		var x = [];
+		var y = [];
+
+		for (var i = 0; i < X.length; i++) {
+			x.push(new Number(X[i]));
+			y.push(new Number(Y[i]));
+		}
+	
+		var coeficientes = retaMinimoQuadrado(x, y);
+		var a0 = coeficientes[0]
+		var a1 = coeficientes[1];
+		var r = coeficientes[2];
+
+		document.getElementById('func').innerText = a1 + ' * X' + (a0 < 0 ? ' - ' : ' + ') + Math.abs(a0);
+		document.getElementById('corre').innerText = r;		
+		
+		plotarReta(context, a0, a1, x, 2, 20, 'red');
+		plotarPontos(context, x, y, 3, 20);			
+	}	
+</script>
+</body>
+<html>
