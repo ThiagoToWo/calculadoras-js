@@ -1,0 +1,95 @@
+<head>
+	<title>Calculadora em notação científica</title>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<style>
+	body {background: #dff;}
+	button {
+		padding: 5px;
+		margin-top: 10px;
+		margin-right: 10px;
+		width: 50px;
+		font-size: 50;		
+	}
+	</style>
+</head>
+<body align='center'>
+<h1>Calculadora em notação científica</h1>
+Primeiro número: <input id='m1' size=3/> x 10^ <input id='e1' size=3/>
+<br>
+Segundo número: <input id='m2' size=3/> x 10^ <input id='e2' size=3/>
+<br>
+<button id='vezes' size=3>*</button>
+<button id='dividir' size=3>/</button>
+<button id='somar' size=3>+</button>
+<button id='subtrair' size=3>-</button>
+<br>
+__________________________________
+<br>
+Resultado: <input id='m' size=3/> x 10^ <input id='e' size=3/>
+
+<script>
+	var m1 = document.getElementById('m1');
+	var e1 = document.getElementById('e1');
+	var m2 = document.getElementById('m2');
+	var e2 = document.getElementById('e2');
+	var v = document.getElementById('vezes');
+	var d = document.getElementById('dividir');	
+	var so = document.getElementById('somar');
+	var su = document.getElementById('subtrair');
+	var m = document.getElementById('m');
+	var e = document.getElementById('e');
+
+	v.onclick = function() {
+		var a = Number(m1.value + 'e' + e1.value);
+		//alert(a)
+		var b = Number(m2.value + 'e' + e2.value);
+		//alert(b)
+		var c = (a * b).toExponential();
+		//alert(c)
+		var comp_c = String(c).split('e');
+		//alert(comp_c)
+		m.value = comp_c[0];
+		e.value = comp_c[1];		
+	}
+		
+	d.onclick = function() {
+		var a = Number(m1.value + 'e' + e1.value);
+		//alert(a)
+		var b = Number(m2.value + 'e' + e2.value);
+		//alert(b)
+		var c = (a / b).toExponential();
+		//alert(c)
+		var comp_c = String(c).split('e');
+		//alert(comp_c)
+		m.value = comp_c[0];
+		e.value = comp_c[1];		
+	}
+	
+	so.onclick = function() {
+		var a = Number(m1.value + 'e' + e1.value);
+		//alert(a)
+		var b = Number(m2.value + 'e' + e2.value);
+		//alert(b)
+		var c = (a + b).toExponential();
+		//alert(c)
+		var comp_c = String(c).split('e');
+		//alert(comp_c)
+		m.value = comp_c[0];
+		e.value = comp_c[1];		
+	}
+	
+	su.onclick = function() {
+		var a = Number(m1.value + 'e' + e1.value);
+		//alert(a)
+		var b = Number(m2.value + 'e' + e2.value);
+		//alert(b)
+		var c = (a - b).toExponential();
+		//alert(c)
+		var comp_c = String(c).split('e');
+		//alert(comp_c)
+		m.value = comp_c[0];
+		e.value = comp_c[1];		
+	}
+</script>
+</body>
