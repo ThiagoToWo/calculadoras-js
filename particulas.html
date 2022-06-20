@@ -18,8 +18,10 @@
     <form>
         <p>N° de Partículas (N): <input type="number" id="N" min="0" max="1000" step="5" value="10" required></p>
         <p>Aresta ([a] = cm): <input type="number" id="a" min="1" max="300" value="300" required></p>
-        <p>Diâmetro das Partícula ([d] = cm): <input type="number" id="d" min="1" max="40" step="0.5" value="10" required></p>
-        <p>Velocidade das Partícula ([v] = cm/s): <input type="number" id="v" min="0" max="150" value="5" required></p>
+        <p>Diâmetro das Partícula ([d] = cm): <input type="number" id="d" min="1" max="40" step="0.5" value="10"
+                required></p>
+        <p>Velocidade das Partícula ([v] = cm/s): <input type="number" id="v" min="0.5" max="150" step="0.5" value="5"
+                required></p>
         <p>
             <input type="radio" name="efeito" id="refletir" checked required> Refletir
             <input type="radio" name="efeito" id="fundir" required> Fundir
@@ -49,7 +51,7 @@
         const resp3 = document.querySelector("#l");
         let elementos;
         let acao;
-        
+
         /*=====================================Classe Partícula====================================*/
         class Particula {
             constructor(x, y, r, vx, vy, cor) {
@@ -59,9 +61,12 @@
                 this.vx = vx;
                 this.vy = vy;
                 this.cor = cor;
+                this.ativo = true;
             }
 
             atualizar() {
+                if (!this.ativo) return;
+                
                 this.x += this.vx;
                 this.y += this.vy;
 
@@ -87,16 +92,26 @@
             }
 
             desenhar() {
+                if (!this.ativo) return;
+
                 ctx.fillStyle = this.cor;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
                 ctx.fill();
             }
+
+            colidiuCom(outro) {
+                return (this.x + this.r >= outro.x - outro.r) &&
+                    (this.x - this.r <= outro.x + outro.r) &&
+                    (this.y + this.r >= outro.y - outro.r) &&
+                    (this.y - this.r <= outro.y + outro.r);
+            }
         }
-        
+
         /*=====================================Funções de Formulário====================================*/
         form.addEventListener("submit", (e) => {
             e.preventDefault();
+            clearInterval(acao);
 
             const N = Number(form.N.value);
             const a = Number(form.a.value);
@@ -111,10 +126,10 @@
             const f = Math.SQRT2 * n * Math.PI * d * d * v;
             const T = 1 / f;
             const l = v * T;
-            
+
             resp1.innerText = `Frequência Média de Colisões (f) = ${f.toPrecision(5)} /s`;
             resp2.innerText = `Período Médio entre Colisões (T) = ${T.toPrecision(5)} s`;
-            resp3.innerText = `Livre Percurso Médio (l) = ${l.toPrecision(5)} cm`;           
+            resp3.innerText = `Livre Percurso Médio (l) = ${l.toPrecision(5)} cm`;
 
             let x = d / 2 + Math.random() * (300 - d);
             let y = d / 2 + Math.random() * (300 - d);
@@ -131,12 +146,12 @@
                 vy = Math.pow(-1, Math.floor(Math.random() * 10)) * Math.sqrt(v * v - vx * vx);
                 p = new Particula(x, y, raio, vx, vy, "black");
                 elementos.push(p);
-            }            
+            }
 
             if (refletiu) {
-                acao = setInterval(processarTudoRefl, 100);
+                acao = setInterval(() => { processarTudo(refletir) }, 100);
             } else {
-                acao = setInterval(processarTudoFund, 100);
+                acao = setInterval(() => { processarTudo(fundir) }, 100);
             }
         });
 
@@ -151,7 +166,7 @@
         });
 
         /*=====================================Funções de Processamento====================================*/
-        function processarTudoRefl() {
+        function processarTudo(callback) {
             ctx.clearRect(0, 0, 300, 300);
 
             for (let i = 0; i < elementos.length; i++) {
@@ -160,49 +175,32 @@
                 a.desenhar();
 
                 for (let j = 0; j < elementos.length; j++) {
+                    if (i == j) continue;
                     const b = elementos[j];
 
-                    if (j != i &&
-                        (a.x + a.r >= b.x - b.r) &&
-                        (a.x - a.r <= b.x + b.r) &&
-                        (a.y + a.r >= b.y - b.r) &&
-                        (a.y - a.r <= b.y + b.r)) {
-                        let v = a.vx;
-                        a.vx = b.vx;
-                        b.vx = v;
-                        v = a.vy;
-                        a.vy = b.vy;
-                        b.vy = v;
+                    if (a.colidiuCom(b)) {
+                        callback(a, b);
                     }
                 }
             }
         }
 
-        function processarTudoFund() {
-            ctx.clearRect(0, 0, 300, 300);
+        function refletir(a, b) {
+            let v = a.vx;
+            a.vx = b.vx;
+            b.vx = v;
+            v = a.vy;
+            a.vy = b.vy;
+            b.vy = v;
+        }
 
-            for (let i = 0; i < elementos.length; i++) {
-                const a = elementos[i];
-                a.atualizar();
-                a.desenhar();
-
-                for (let j = 0; j < elementos.length; j++) {
-                    const b = elementos[j];
-
-                    if (j != i &&
-                        (a.x + a.r >= b.x - b.r) &&
-                        (a.x - a.r <= b.x + b.r) &&
-                        (a.y + a.r >= b.y - b.r) &&
-                        (a.y - a.r <= b.y + b.r)) {
-                        let vx = (a.vx + b.vx) / 2;
-                        let vy = (a.vy + b.vy) / 2;
-                        a.vx = vx;
-                        a.vy = vy;
-                        b.vx = vx;
-                        b.vy = vy;
-                    }
-                }
-            }
+        function fundir(a, b) {
+            let vx = (a.vx + b.vx) / 2;
+            let vy = (a.vy + b.vy) / 2;
+            a.vx = vx;
+            a.vy = vy;
+            b.vx = vx;
+            b.vy = vy;
         }
     </script>
 </body>
